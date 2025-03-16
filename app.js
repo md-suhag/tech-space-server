@@ -5,6 +5,8 @@ const cors = require("cors");
 const globalErrorHandler = require("./middlewares/globalErrorHandler");
 const notFound = require("./middlewares/notFound");
 const authRouter = require("./routes/auth.route");
+const productRouter = require("./routes/product.route");
+const Product = require("./models/product.model");
 
 const app = express();
 
@@ -24,6 +26,7 @@ app.get("/", (req, res) => {
 // api endpoints
 
 app.use("/api/auth", authRouter);
+app.use("/api/products", productRouter);
 
 // Global Error handler middleware
 app.use(globalErrorHandler);
