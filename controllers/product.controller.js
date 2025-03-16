@@ -1,3 +1,4 @@
+const { cloudinary } = require("../config");
 const Product = require("../models/product.model");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
@@ -62,8 +63,49 @@ const createProduct = catchAsync(async (req, res, next) => {
     .status(201)
     .json({ success: true, message: "New product created", data: product });
 });
+
+const updateProduct = catchAsync(async (req, res, next) => {
+  const { name, price, description, category, stock } = req.body;
+  const { id } = req.params;
+
+  let product = await Product.findById(id);
+  if (!product) {
+    return next(new AppError("Product not found", 404));
+  }
+
+  let imageUrl = product.imageUrl;
+
+  if (req.file) {
+    const uploadResult = await uploadFileToCloudinary(req.file);
+
+    if (product.imageUrl) {
+      const publicId = "techspace_products/".concat(
+        product.imageUrl.split("/").pop().split(".")[0]
+      );
+
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    imageUrl = uploadResult.url;
+  }
+
+  // Update product details
+  product = await Product.findByIdAndUpdate(
+    id,
+    { name, price, description, category, stock, imageUrl },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Product updated successfully",
+    data: product,
+  });
+});
+
 module.exports = {
   getAllProducts,
   getSingleProduct,
   createProduct,
+  updateProduct,
 };

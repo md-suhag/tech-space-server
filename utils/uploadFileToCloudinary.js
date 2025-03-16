@@ -1,11 +1,4 @@
-const cloudinary = require("cloudinary").v2;
-
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const { cloudinary } = require("./../config");
 
 // Upload file to Cloudinary from buffer
 const uploadFileToCloudinary = async (file, folder = "techspace_products") => {
