@@ -65,7 +65,15 @@ const createReview = catchAsync(async (req, res, next) => {
     .status(201)
     .json({ success: true, message: "Review submitted successfully", review });
 });
-const getProductReviews = catchAsync(async (req, res, next) => {});
+const getProductReviews = catchAsync(async (req, res, next) => {
+  const { productId } = req.params;
+
+  const reviews = await Review.find({ productId })
+    .populate("userId", "name")
+    .sort({ createdAt: -1 });
+
+  res.status(200).json({ success: true, reviews });
+});
 
 module.exports = {
   createReview,
