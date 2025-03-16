@@ -38,7 +38,31 @@ const getSingleOrder = catchAsync(async (req, res, next) => {
 });
 
 // =========== update order status ==========
-const updateOrderStatus = catchAsync(async (req, res, next) => {});
+const updateOrderStatus = catchAsync(async (req, res, next) => {
+  const { orderId } = req.params;
+  const { orderStatus } = req.body;
+
+  // Ensure valid order status
+  const validStatuses = ["Processing", "Shipped", "Delivered", "Cancelled"];
+  if (!validStatuses.includes(orderStatus)) {
+    return next(new AppError("Invalid order status", 400));
+  }
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    return next(new AppError("No order found", 404));
+  }
+
+  // Update order status
+  order.orderStatus = orderStatus;
+  await order.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Order status updated successfully",
+    order,
+  });
+});
 
 // =========== create new order ==========
 const createOrder = catchAsync(async (req, res, next) => {
