@@ -4,6 +4,7 @@ const catchAsync = require("../utils/catchAsync");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+// =========== register new user ==========
 const register = catchAsync(async (req, res, next) => {
   const { name, email, password } = req.body;
 
@@ -26,6 +27,8 @@ const register = catchAsync(async (req, res, next) => {
     message: "Registration successfull",
   });
 });
+
+// =========== login ==========
 const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });

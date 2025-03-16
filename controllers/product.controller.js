@@ -5,6 +5,7 @@ const catchAsync = require("../utils/catchAsync");
 const QueryBuilder = require("../utils/queryBuilder");
 const uploadFileToCloudinary = require("../utils/uploadFileToCloudinary");
 
+// =========== get all products ==========
 const getAllProducts = catchAsync(async (req, res, next) => {
   const query = Product.find();
   const queryBuilder = new QueryBuilder(query, req.query);
@@ -26,6 +27,7 @@ const getAllProducts = catchAsync(async (req, res, next) => {
   });
 });
 
+// =========== get single product ==========
 const getSingleProduct = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
@@ -42,6 +44,7 @@ const getSingleProduct = catchAsync(async (req, res, next) => {
   });
 });
 
+// =========== create product ==========
 const createProduct = catchAsync(async (req, res, next) => {
   const { name, price, description, stock, category } = req.body;
   const file = req.file;
@@ -64,6 +67,7 @@ const createProduct = catchAsync(async (req, res, next) => {
     .json({ success: true, message: "New product created", data: product });
 });
 
+// =========== update product ==========
 const updateProduct = catchAsync(async (req, res, next) => {
   const { name, price, description, category, stock } = req.body;
   const { id } = req.params;
@@ -103,9 +107,32 @@ const updateProduct = catchAsync(async (req, res, next) => {
   });
 });
 
+// =========== delete product ==========
+
+const deleteProduct = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  const product = await Product.findOne({ _id: id });
+  if (!product) {
+    return next(new AppError("Product not found", 404));
+  }
+  if (product.imageUrl) {
+    const publicId = "techspace_products/".concat(
+      product.imageUrl.split("/").pop().split(".")[0]
+    );
+
+    await cloudinary.uploader.destroy(publicId);
+  }
+  await Product.findByIdAndDelete(id);
+  res.status(200).json({
+    success: true,
+    message: "Product Deleted successfully",
+  });
+});
 module.exports = {
   getAllProducts,
   getSingleProduct,
   createProduct,
   updateProduct,
+  deleteProduct,
 };

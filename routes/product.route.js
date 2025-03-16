@@ -4,6 +4,7 @@ const {
   getSingleProduct,
   createProduct,
   updateProduct,
+  deleteProduct,
 } = require("../controllers/product.controller");
 const { productImage } = require("../middlewares/multer");
 
@@ -13,5 +14,6 @@ router.get("/", getAllProducts);
 router.get("/:id", getSingleProduct);
 router.post("/", productImage, createProduct);
 router.put("/:id", productImage, updateProduct);
+router.delete("/:id", deleteProduct);
 
 module.exports = router;
