@@ -75,7 +75,41 @@ const getProductReviews = catchAsync(async (req, res, next) => {
   res.status(200).json({ success: true, reviews });
 });
 
+const deleteReview = catchAsync(async (req, res, next) => {
+  const { reviewId } = req.params;
+  const userId = req.user._id;
+  const isAdmin = req.user.role === "admin";
+
+  const review = await Review.findById(reviewId);
+  if (!review) {
+    return next(new AppError("Review not found", 404));
+  }
+
+  //  Ensure the user owns the review OR is an admin
+  if (!isAdmin && review.userId.toString() !== userId.toString()) {
+    return next(
+      new AppError("You are not authorized to delete this review", 403)
+    );
+  }
+
+  // Reduce product rating count before deletion
+  const product = await Product.findById(review.productId);
+  if (product) {
+    product.reviewCount -= 1;
+    product.totalRating -= review.rating;
+
+    await product.save();
+  }
+
+  await review.deleteOne();
+
+  res
+    .status(200)
+    .json({ success: true, message: "Review deleted successfully" });
+});
+
 module.exports = {
   createReview,
   getProductReviews,
+  deleteReview,
 };
