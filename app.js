@@ -4,9 +4,11 @@ dotenv.config();
 const cors = require("cors");
 const globalErrorHandler = require("./middlewares/globalErrorHandler");
 const notFound = require("./middlewares/notFound");
+const cookieParser = require("cookie-parser");
 const authRouter = require("./routes/auth.route");
 const productRouter = require("./routes/product.route");
-const cookieParser = require("cookie-parser");
+const orderRouter = require("./routes/order.route");
+
 const app = express();
 
 // parser
@@ -27,6 +29,7 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
+app.use("/api/orders", orderRouter);
 
 // Global Error handler middleware
 app.use(globalErrorHandler);
