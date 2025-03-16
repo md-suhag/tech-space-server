@@ -37,6 +37,22 @@ const getSingleOrder = catchAsync(async (req, res, next) => {
   });
 });
 
+// =========== get all orders of a customer ==========
+const getCustomerOrders = catchAsync(async (req, res, next) => {
+  const customerId = req.user._id;
+
+  const orders = await Order.find({ userId: customerId }).populate(
+    "orderItems"
+  );
+  if (!orders.length) {
+    return next(new AppError("No order found", 404));
+  }
+  res.status(200).json({
+    success: true,
+    message: "All orders fetched successfully",
+    data: orders,
+  });
+});
 // =========== update order status ==========
 const updateOrderStatus = catchAsync(async (req, res, next) => {
   const { orderId } = req.params;
@@ -165,4 +181,5 @@ module.exports = {
   getSingleOrder,
   updateOrderStatus,
   createOrder,
+  getCustomerOrders,
 };

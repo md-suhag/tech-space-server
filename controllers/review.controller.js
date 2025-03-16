@@ -107,9 +107,23 @@ const deleteReview = catchAsync(async (req, res, next) => {
     .status(200)
     .json({ success: true, message: "Review deleted successfully" });
 });
+const getCustomerReviews = catchAsync(async (req, res, next) => {
+  const customerId = req.user._id;
+  const reviews = await Review.find({ userId: customerId });
+
+  if (!reviews.length) {
+    return next(new AppError("No review found", 404));
+  }
+  res.status(200).json({
+    success: true,
+    message: "All reviews fetched successfully",
+    data: reviews,
+  });
+});
 
 module.exports = {
   createReview,
   getProductReviews,
   deleteReview,
+  getCustomerReviews,
 };
