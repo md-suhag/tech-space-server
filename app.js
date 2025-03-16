@@ -7,11 +7,13 @@ const notFound = require("./middlewares/notFound");
 const authRouter = require("./routes/auth.route");
 const productRouter = require("./routes/product.route");
 const Product = require("./models/product.model");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 
 // parser
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: [process.env.CLIENT_URL],
