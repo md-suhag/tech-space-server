@@ -5,12 +5,14 @@ const {
   deleteReview,
   getCustomerReviews,
 } = require("../controllers/review.controller");
+const { auth } = require("../middlewares/auth");
+const ROLES = require("../constants/roles");
 
 const router = express.Router();
 
 router.get("/:productId", getProductReviews);
-router.post("/:productId", createReview);
-router.delete("/:reviewId", deleteReview);
-router.get("/customer", getCustomerReviews);
+router.post("/:productId", auth(ROLES.CUSTOMER), createReview);
+router.delete("/:reviewId", auth(ROLES.CUSTOMER), deleteReview);
+router.get("/customer", auth(ROLES.ADMIN, ROLES.CUSTOMER), getCustomerReviews);
 
 module.exports = router;

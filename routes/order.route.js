@@ -6,13 +6,15 @@ const {
   updateOrderStatus,
   getCustomerOrders,
 } = require("../controllers/order.controller");
+const { auth } = require("../middlewares/auth");
+const ROLES = require("../constants/roles");
 
 const router = express.Router();
 
-router.get("/", getAllOrders);
-router.get("/:id", getSingleOrder);
-router.get("/customer", getCustomerOrders);
-router.post("/", createOrder);
-router.put("/:id/status", updateOrderStatus);
+router.get("/", auth(ROLES.ADMIN), getAllOrders);
+router.get("/:id", auth(ROLES.CUSTOMER), getSingleOrder);
+router.get("/customer", auth(ROLES.CUSTOMER), getCustomerOrders);
+router.post("/", auth(ROLES.CUSTOMER), createOrder);
+router.put("/:id/status", auth(ROLES.ADMIN), updateOrderStatus);
 
 module.exports = router;
