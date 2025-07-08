@@ -51,10 +51,14 @@ const login = catchAsync(async (req, res, next) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
   });
-
+  user.password = undefined;
   res.status(200).json({
     success: true,
     message: "Login successful",
+    data: {
+      token,
+      user,
+    },
   });
 });
 
