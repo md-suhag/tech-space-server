@@ -8,7 +8,7 @@ const {
 const router = express.Router();
 
 router.post("/success/:orderId", handlePaymentSuccess);
-router.post("/fail/orderId", handlePaymentFail);
-router.post("/cancel/orderId", handlePaymentCancel);
+router.post("/fail/:orderId", handlePaymentFail);
+router.post("/cancel/:orderId", handlePaymentCancel);
 
 module.exports = router;

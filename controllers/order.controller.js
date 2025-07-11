@@ -1,10 +1,10 @@
-const { default: axios } = require("axios");
 const { ssl_commerz, site_url } = require("../config");
 const Order = require("../models/order.model");
 const OrderItem = require("../models/orderItem.model");
 const Product = require("../models/product.model");
 const AppError = require("../utils/appError");
 const catchAsync = require("../utils/catchAsync");
+const SSLCommerzPayment = require("sslcommerz-lts");
 
 // =========== get all orders ==========
 const getAllOrders = catchAsync(async (req, res, next) => {
@@ -82,8 +82,7 @@ const updateOrderStatus = catchAsync(async (req, res, next) => {
 
 // =========== create new order ==========
 const createOrder = catchAsync(async (req, res, next) => {
-  const { orderItems, shippingAddress, userInfo, paymentInfo, totalPrice } =
-    req.body;
+  const { orderItems, shippingAddress, userInfo, paymentInfo } = req.body;
 
   // Ensure order has items
   if (!orderItems || orderItems.length === 0) {
@@ -105,6 +104,7 @@ const createOrder = catchAsync(async (req, res, next) => {
     await product.save();
   }
 
+  let totalOrderPrice = 0;
   // Create OrderItems
   const createdOrderItems = await Promise.all(
     orderItems.map(async (item) => {
@@ -118,7 +118,7 @@ const createOrder = catchAsync(async (req, res, next) => {
         price: product.price,
         total,
       });
-
+      totalOrderPrice += total;
       return orderItem;
     })
   );
@@ -129,7 +129,7 @@ const createOrder = catchAsync(async (req, res, next) => {
     orderItems: createdOrderItems.map((item) => item._id),
     shippingAddress,
     paymentInfo,
-    totalPrice,
+    totalPrice: totalOrderPrice,
   });
 
   // Update OrderItems with the orderId
@@ -148,25 +148,37 @@ const createOrder = catchAsync(async (req, res, next) => {
     success_url: `${site_url.server_url}/api/payment/success/${order._id}`,
     fail_url: `${site_url.server_url}/api/payment/fail/${order._id}`,
     cancel_url: `${site_url.server_url}/api/payment/cancel/${order._id}`,
+    shipping_method: "Courier",
+    product_name: "electric-product",
+    product_category: "electronics",
+    product_profile: "general",
     cus_name: userInfo.name,
     cus_email: userInfo.email,
     cus_add1: order.shippingAddress,
+    cus_city: "Dhaka",
+    cus_postcode: "1000",
+    cus_country: "Bangladesh",
     cus_phone: userInfo.phone,
+    ship_name: userInfo.name,
+    ship_add1: order.shippingAddress,
+    ship_add2: order.shippingAddress,
+    ship_city: "Dhaka",
+    ship_state: "Dhaka",
+    ship_postcode: 1000,
+    ship_country: "Bangladesh",
   };
 
   try {
-    const response = await axios.post(ssl_commerz.api_url, paymentData);
+    const sslcz = new SSLCommerzPayment(
+      ssl_commerz.store_id,
+      ssl_commerz.store_passwd,
+      false
+    );
+    sslcz.init(paymentData).then((apiResponse) => {
+      let GatewayPageURL = apiResponse.GatewayPageURL;
 
-    // If SSLCommerz payment request is successful
-    if (response.data.status === "SUCCESS") {
-      res
-        .status(200)
-        .json({ success: true, redirectUrl: response.data.payment_url });
-    } else {
-      res
-        .status(400)
-        .json({ success: false, message: "Payment initiation failed" });
-    }
+      res.status(200).json({ success: true, redirectUrl: GatewayPageURL });
+    });
   } catch (error) {
     console.error("Payment initiation error:", error);
     res.status(500).json({

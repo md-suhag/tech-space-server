@@ -13,6 +13,7 @@ module.exports = {
     store_id: process.env.SSL_COMMERZ_STORE_ID,
     store_passwd: process.env.SSL_COMMERZ_STORE_PASSWORD,
     api_url: process.env.SSL_COMMERZ_API_URL,
+    transaction_query_api: process.env.SSL_COMMERZ_TRANSACTION_QUERY_API,
   },
   site_url: {
     server_url: process.env.SERVER_URL,
