@@ -8,9 +8,8 @@ const SSLCommerzPayment = require("sslcommerz-lts");
 
 // =========== get all orders ==========
 const getAllOrders = catchAsync(async (req, res, next) => {
-  const orders = await Order.find({});
-
-  if (orders.length) {
+  const orders = await Order.find({}).populate("orderItems");
+  if (!orders.length) {
     return next(new AppError("No order found", 404));
   }
 
@@ -39,7 +38,7 @@ const getSingleOrder = catchAsync(async (req, res, next) => {
 
 // =========== get all orders of a customer ==========
 const getCustomerOrders = catchAsync(async (req, res, next) => {
-  const customerId = req.user._id;
+  const customerId = req.user.id;
 
   const orders = await Order.find({ userId: customerId }).populate(
     "orderItems"
@@ -55,7 +54,7 @@ const getCustomerOrders = catchAsync(async (req, res, next) => {
 });
 // =========== update order status ==========
 const updateOrderStatus = catchAsync(async (req, res, next) => {
-  const { orderId } = req.params;
+  const { id } = req.params;
   const { orderStatus } = req.body;
 
   // Ensure valid order status
@@ -64,7 +63,7 @@ const updateOrderStatus = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid order status", 400));
   }
 
-  const order = await Order.findById(orderId);
+  const order = await Order.findById(id);
   if (!order) {
     return next(new AppError("No order found", 404));
   }
@@ -125,7 +124,7 @@ const createOrder = catchAsync(async (req, res, next) => {
 
   //  Create Order
   const order = await Order.create({
-    userId: req.user._id,
+    userId: req.user.id,
     orderItems: createdOrderItems.map((item) => item._id),
     shippingAddress,
     paymentInfo,

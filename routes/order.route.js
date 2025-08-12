@@ -12,8 +12,8 @@ const ROLES = require("../constants/roles");
 const router = express.Router();
 
 router.get("/", auth(ROLES.ADMIN), getAllOrders);
-router.get("/:id", auth(ROLES.CUSTOMER), getSingleOrder);
 router.get("/customer", auth(ROLES.CUSTOMER), getCustomerOrders);
+router.get("/:id", auth(ROLES.CUSTOMER), getSingleOrder);
 router.post("/", auth(ROLES.CUSTOMER), createOrder);
 router.put("/:id/status", auth(ROLES.ADMIN), updateOrderStatus);
 

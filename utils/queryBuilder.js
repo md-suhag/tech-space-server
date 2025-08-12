@@ -2,6 +2,7 @@ class QueryBuilder {
   constructor(query, queryParams) {
     this.query = query;
     this.queryParams = queryParams;
+    this._filters = {};
   }
 
   filter() {
@@ -26,8 +27,13 @@ class QueryBuilder {
       filters.name = { $regex: String(this.queryParams.search), $options: "i" };
     }
 
+    this._filters = filters;
     this.query = this.query.where(filters);
     return this;
+  }
+
+  getFilters() {
+    return this._filters;
   }
 
   sort() {

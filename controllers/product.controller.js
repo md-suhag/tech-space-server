@@ -10,11 +10,11 @@ const getAllProducts = catchAsync(async (req, res, next) => {
   const query = Product.find();
   const queryBuilder = new QueryBuilder(query, req.query);
 
-  const products = await queryBuilder.filter().sort().paginate().query.lean();
+  queryBuilder.filter().sort().paginate();
 
-  const totalProducts = await Product.countDocuments(
-    queryBuilder.filter().query.getFilter()
-  );
+  const products = await queryBuilder.query.lean();
+
+  const totalProducts = await Product.countDocuments(queryBuilder.getFilters());
 
   res.status(200).json({
     success: true,
