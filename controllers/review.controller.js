@@ -7,7 +7,7 @@ const catchAsync = require("../utils/catchAsync");
 
 const createReview = catchAsync(async (req, res, next) => {
   const { orderItemId, productId, rating, comment } = req.body;
-  const userId = req.user._id;
+  const userId = req.user.id;
 
   // Validate order ownership
   const orderItem = await OrderItem.findOne({ _id: orderItemId, productId });
@@ -34,7 +34,7 @@ const createReview = catchAsync(async (req, res, next) => {
 
   // Check if the user already reviewed this product
   const existingReview = await Review.findOne({
-    user: userId,
+    userId: userId,
     orderItem: orderItemId,
   });
   if (existingReview) {
@@ -43,8 +43,8 @@ const createReview = catchAsync(async (req, res, next) => {
 
   // Create new review
   const review = await Review.create({
-    user: userId,
-    product: productId,
+    userId: userId,
+    productId: productId,
     orderItem: orderItemId,
     rating,
     comment,
@@ -77,7 +77,7 @@ const getProductReviews = catchAsync(async (req, res, next) => {
 
 const deleteReview = catchAsync(async (req, res, next) => {
   const { reviewId } = req.params;
-  const userId = req.user._id;
+  const userId = req.user.id;
   const isAdmin = req.user.role === "admin";
 
   const review = await Review.findById(reviewId);
@@ -108,12 +108,12 @@ const deleteReview = catchAsync(async (req, res, next) => {
     .json({ success: true, message: "Review deleted successfully" });
 });
 const getCustomerReviews = catchAsync(async (req, res, next) => {
-  const customerId = req.user._id;
-  const reviews = await Review.find({ userId: customerId });
+  const customerId = req.user.id;
+  const reviews = await Review.find({ userId: customerId }).populate(
+    "productId",
+    "name"
+  );
 
-  if (!reviews.length) {
-    return next(new AppError("No review found", 404));
-  }
   res.status(200).json({
     success: true,
     message: "All reviews fetched successfully",

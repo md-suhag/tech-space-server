@@ -22,7 +22,7 @@ const getAllProducts = catchAsync(async (req, res, next) => {
     count: products.length,
     total: totalProducts,
     totalPages: Math.ceil(totalProducts / (req.query.limit || 10)),
-    currentPage: req.query.page || 1,
+    currentPage: Number(req.query.page) || 1,
     data: products,
   });
 });

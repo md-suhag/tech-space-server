@@ -113,6 +113,7 @@ const createOrder = catchAsync(async (req, res, next) => {
       const orderItem = await OrderItem.create({
         orderId: null,
         productId: item.productId,
+        productName: product.name,
         quantity: item.quantity,
         price: product.price,
         total,
