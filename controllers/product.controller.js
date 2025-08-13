@@ -129,10 +129,22 @@ const deleteProduct = catchAsync(async (req, res, next) => {
     message: "Product Deleted successfully",
   });
 });
+
+const getFeaturedProducts = catchAsync(async (req, res, next) => {
+  const feturedProducts = await Product.find({})
+    .sort({ totalRating: -1 })
+    .limit(8);
+  res.status(200).json({
+    success: true,
+    message: "Featureed product successfully fetched",
+    data: feturedProducts,
+  });
+});
 module.exports = {
   getAllProducts,
   getSingleProduct,
   createProduct,
   updateProduct,
   deleteProduct,
+  getFeaturedProducts,
 };
