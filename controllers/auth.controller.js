@@ -49,7 +49,7 @@ const login = catchAsync(async (req, res, next) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     sameSite: "none",
   });
   user.password = undefined;
@@ -63,7 +63,17 @@ const login = catchAsync(async (req, res, next) => {
   });
 });
 
+// =========== get user ==========
+const getMe = catchAsync(async (req, res, next) => {
+  if (req.user.role) {
+    res.status(200).json({
+      success: true,
+      message: "User is authenticated",
+    });
+  }
+});
 module.exports = {
   register,
   login,
+  getMe,
 };
