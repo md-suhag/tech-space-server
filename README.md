@@ -73,6 +73,10 @@ npm install
 npm run dev
 ```
 
+## ER Diagram
+
+<img src="./tech-space-er-diagram.jpg"/>
+
 ## 📦 API Endpoints
 
 ### Auth Routes (`/api/auth`)
